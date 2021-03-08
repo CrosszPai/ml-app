@@ -3,10 +3,14 @@
     "allowJs": true,
     "alwaysStrict": true,
     "esModuleInterop": true,
+    "jsxImportSource": "@emotion/react",
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "lib": ["dom", "es2017"],
+    "lib": [
+      "dom",
+      "es2017"
+    ],
     "module": "esnext",
     "moduleResolution": "node",
     "noEmit": true,
@@ -17,8 +21,12 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "esnext",
-    "types": ["@emotion/core"]
   },
-  "exclude": ["node_modules"],
-  "include": ["**/*.ts", "**/*.tsx"]
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ]
 }
