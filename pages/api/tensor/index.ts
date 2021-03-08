@@ -26,6 +26,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         fields: formidable.Fields,
         files: formidable.Files
     }) => void, reject) {
+        //@ts-ignore
         const form = new formidable.IncomingForm({ keepExtensions: true });
         form.parse(req, function (err, fields, files) {
             if (err) return reject(err);
