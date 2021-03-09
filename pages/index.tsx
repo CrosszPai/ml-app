@@ -1,5 +1,4 @@
 import { LegacyRef, useRef, useState } from "react";
-import { css } from "@emotion/react";
 import { predictResponse, Result } from "../interfaces";
 
 const IndexPage = () => {
@@ -34,30 +33,30 @@ const IndexPage = () => {
 
   return (
     <div
-      css={css`
-        display: block;
-        width: 100vw;
-        text-align: center;
-      `}
+      style={{
+        display: "block",
+        width: "100vw",
+        textAlign: "center",
+      }}
     >
       <div>
         {preview ? (
           <img
-            css={css`
-              max-width: 400px;
-              max-height: 400px;
-            `}
+            style={{
+              maxWidth: 400,
+              maxHeight: 400,
+            }}
             src={preview}
           ></img>
         ) : (
           <div
-            css={css`
-              height: 300px;
-              width: 300px;
-              margin: auto;
-              margin-bottom: 2rem;
-              border: 1px solid black;
-            `}
+            style={{
+              height: "300px",
+              width: "300px",
+              margin: "auto",
+              marginBottom: "2rem",
+              border: "1px solid black",
+            }}
           ></div>
         )}
       </div>
@@ -70,9 +69,9 @@ const IndexPage = () => {
           type="file"
         ></input>
         <div
-          css={css`
-            margin-top: 2rem;
-          `}
+          style={{
+            marginTop: "2rem",
+          }}
         >
           <button onClick={onClick}>upload</button>
         </div>
