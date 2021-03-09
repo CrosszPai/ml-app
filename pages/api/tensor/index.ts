@@ -33,7 +33,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
         const filenames = fs.readdirSync(dir);
         const images = filenames.map(name => path.join('/', dirRelativeToPublicFolder, name))
-        await tfnode.loadLayersModel('http://localhost:3031' + images.pop(),)
+        await tfnode.loadLayersModel('https://e-kapraow.vercel.app' + images.pop(),)
             .then(res => {
                 model = res
             })
