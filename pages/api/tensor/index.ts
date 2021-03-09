@@ -1,3 +1,5 @@
+// @ts-ignore
+// @ts-nocheck
 import * as tfnode from '@tensorflow/tfjs-node'
 import { LayersModel } from '@tensorflow/tfjs';
 import { NextApiRequest, NextApiResponse } from 'next'
@@ -40,7 +42,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         fields: formidable.Fields,
         files: formidable.Files
     }) => void, reject) {
-        //@ts-ignore
         const form = new formidable.IncomingForm({ keepExtensions: true });
         form.parse(req, function (err, fields, files) {
             if (err) return reject(err);
@@ -61,7 +62,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             const ww = (await tfimage.flatten().array()).map((val: number) => {
                 return -1 + ((1 - (-1)) / (255 - 0)) * (val - 0)
             })
-            //@ts-ignore
             const www = await model.predict(tfnode.tensor4d([...ww], [1, 224, 224, 3]), {
                 verbose: true,
             }).flatten().array()
