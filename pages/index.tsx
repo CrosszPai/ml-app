@@ -1,23 +1,34 @@
 import { LegacyRef, useRef, useState } from "react";
 import { css } from "@emotion/react";
-import useSWR, { mutate } from "swr";
-import { predictResponse } from "../interfaces";
+import { predictResponse, Result } from "../interfaces";
 
 const IndexPage = () => {
-  const { data } = useSWR<predictResponse>("/api/tensor");
   const ref = useRef<HTMLInputElement>();
   const [preview, setPreview] = useState<string>();
+  const [processing, setProcessing] = useState(false);
+  const [data, setData] = useState<Result[]>([]);
+  const [err, setError] = useState<boolean>(false);
   const onClick = () => {
     if (ref.current?.files?.[0]) {
       const form = new FormData();
       form.append("image", ref.current.files[0]);
-      mutate("/api/tensor", async () => {
-        const res = await fetch("/api/tensor", {
-          method: "POST",
-          body: form,
+      setProcessing(true);
+      setError(false);
+      fetch("/api/tensor", {
+        method: "POST",
+        body: form,
+      })
+        .then((res) => res.json() as Promise<predictResponse>)
+        .then((data) => {
+          if (data.data === -1) {
+            setError(true);
+          } else {
+            setData(data.data);
+          }
+        })
+        .finally(() => {
+          setProcessing(false);
         });
-        return (await res.json()) as predictResponse;
-      });
     }
   };
 
@@ -58,11 +69,24 @@ const IndexPage = () => {
           ref={ref as LegacyRef<HTMLInputElement>}
           type="file"
         ></input>
-        <div>
+        <div
+          css={css`
+            margin-top: 2rem;
+          `}
+        >
           <button onClick={onClick}>upload</button>
         </div>
-        {data?.data === 0 ? "Catto" : data?.data === 1 ? "Doggo" : "unknown"}
       </div>
+      {processing
+        ? "processing"
+        : data.map((val) => {
+            return (
+              <p key={val.name}>
+                {val.name} : {val.prop} %
+              </p>
+            );
+          })}
+      {err && "unkown"}
     </div>
   );
 };

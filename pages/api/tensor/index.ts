@@ -8,10 +8,24 @@ import formidable from 'formidable'
 
 let model: LayersModel;
 
+function mapToClass(index: number): string {
+    switch (index) {
+        case 0:
+            return 'Caraway'
+        case 1:
+            return 'Holy Basil'
+        case 2:
+            return 'Papermint'
+        case 3:
+            return 'Sweet Basil'
+        default:
+            return 'Unkown';
+    }
+}
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     if (!model) {
-        const dirRelativeToPublicFolder = 'model.json'
+        const dirRelativeToPublicFolder = 'model'
 
         const dir = path.resolve('./public', dirRelativeToPublicFolder);
 
@@ -43,17 +57,25 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
             const tfimage = tfnode.node
                 .decodePng(imageBuffer)
-                .resizeNearestNeighbor([150, 150])
-            const ww = await tfimage.flatten().array()
-            const www = model.predict(tfnode.tensor4d([...ww], [1, 150, 150, 3]), {
-                verbose: true
+                .resizeNearestNeighbor([224, 224])
+            const ww = (await tfimage.flatten().array()).map((val: number) => {
+                return -1 + ((1 - (-1)) / (255 - 0)) * (val - 0)
             })
-
+            //@ts-ignore
+            const www = await model.predict(tfnode.tensor4d([...ww], [1, 224, 224, 3]), {
+                verbose: true,
+            }).flatten().array()
 
             res.status(200).json({
-                data: JSON.parse(www.toString().replace('Tensor\n', "").replace(",", "").trim()).pop().pop()
+                data: www.map((val: number, index: number) => {
+                    return {
+                        prop: (val * 100).toFixed(0),
+                        name: mapToClass(index)
+                    }
+                })
             })
         } catch (error) {
+            console.log(error);
             res.json({
                 data: -1
             })

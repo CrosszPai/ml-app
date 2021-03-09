@@ -3,6 +3,10 @@
 // example, to import the interface below do:
 //
 
+export interface Result {
+    prop: string
+    name: string
+}
 export interface predictResponse {
-    data: number
+    data: Array<Result> | -1
 }
