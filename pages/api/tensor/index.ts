@@ -1,31 +1,16 @@
-// @ts-ignore
-// @ts-nocheck
 import * as tfnode from '@tensorflow/tfjs-node'
 import { LayersModel } from '@tensorflow/tfjs';
 import { NextApiRequest, NextApiResponse } from 'next'
 import fs from 'fs'
 import path from 'path'
 import formidable from 'formidable'
+import { mapToClass } from '../../../utils';
 
 
 let model: LayersModel;
 
-function mapToClass(index: number): string {
-    switch (index) {
-        case 0:
-            return 'Caraway'
-        case 1:
-            return 'Holy Basil'
-        case 2:
-            return 'Papermint'
-        case 3:
-            return 'Sweet Basil'
-        default:
-            return 'Unkown';
-    }
-}
-
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+    
     if (!model) {
         const dirRelativeToPublicFolder = 'model'
 
@@ -42,6 +27,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         fields: formidable.Fields,
         files: formidable.Files
     }) => void, reject) {
+        //@ts-ignore
         const form = new formidable.IncomingForm({ keepExtensions: true });
         form.parse(req, function (err, fields, files) {
             if (err) return reject(err);
@@ -62,9 +48,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             const ww = (await tfimage.flatten().array()).map((val: number) => {
                 return -1 + ((1 - (-1)) / (255 - 0)) * (val - 0)
             })
-            const www = await model.predict(tfnode.tensor4d([...ww], [1, 224, 224, 3]), {
+            const www = await (model.predict(tfnode.tensor4d([...ww], [1, 224, 224, 3]), {
                 verbose: true,
-            }).flatten().array()
+            }) as tfnode.Tensor).flatten().array()
 
             res.status(200).json({
                 data: www.map((val: number, index: number) => {
