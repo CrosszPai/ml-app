@@ -1,107 +1,218 @@
-import { LegacyRef, useEffect, useRef, useState } from "react";
+import { LegacyRef, useRef, useState } from "react";
+import Button from "../components/Button";
+import Select from "../components/Select";
 import { usePredict } from "../hooks/usePredict";
-import { predictResponse, Result } from "../interfaces";
+
+const METHOD = [
+  {
+    label: "On server",
+    value: "server",
+  },
+  {
+    label: "On your device",
+    value: "local",
+  },
+];
 
 const IndexPage = () => {
-  const ref = useRef<HTMLInputElement>();
+  const [page, setPage] = useState<"index" | "about" | "info">("index");
+  const inputRef = useRef<HTMLInputElement>();
   const img = useRef<HTMLImageElement>();
-  const methodRef = useRef<HTMLSelectElement>();
-  const [preview, setPreview] = useState<string>();
-  const [processing, setProcessing] = useState(false);
-  const [data, setData] = useState<Result[]>([]);
-  const [err, setError] = useState<boolean>(false);
-  const [{ processing: localPorcessing, result }, predict] = usePredict();
-  useEffect(() => {
-    setData(result);
-  }, [result]);
+  const [method, setMethod] = useState<"local" | "server">("server");
+  const [preview, setPreview] = useState<File>();
+  const [{ processing, result, clear, error }, predict] = usePredict();
   const onClick = () => {
-    if (methodRef.current?.value == "server") {
-      if (ref.current?.files?.[0]) {
-        const form = new FormData();
-        form.append("image", ref.current.files[0]);
-        setProcessing(true);
-        setError(false);
-        fetch("/api/tensor", {
-          method: "POST",
-          body: form,
-        })
-          .then((res) => res.json() as Promise<predictResponse>)
-          .then((data) => {
-            if (data.data === -1) {
-              setError(true);
-            } else {
-              setData(data.data);
-            }
-          })
-          .finally(() => {
-            setProcessing(false);
-          });
-      }
-    } else {
-      predict(img.current as HTMLImageElement);
+    if (preview && img.current) {
+      predict(method, method === "local" ? img.current : preview);
     }
   };
 
   return (
-    <div
-      style={{
-        display: "block",
-        width: "100vw",
-        textAlign: "center",
-      }}
-    >
-      <div>
-        {preview ? (
-          <img
-            ref={img as LegacyRef<HTMLImageElement>}
+    <div className="app">
+      <div className="config" >
+        <Select
+          onChange={(e) => {
+            setMethod(e.target.value as any);
+          }}
+          options={METHOD}
+        />
+      </div>
+      {page === "index" ? (
+        <div className="image-manage-container main">
+          <p
             style={{
-              maxWidth: 400,
-              maxHeight: 400,
+              textAlign: "right",
+              marginTop: 0,
+              color: "#BDBDBD",
             }}
-            src={preview}
-          ></img>
-        ) : (
+          >
+            On {method}
+          </p>
+          <p
+            style={{
+              fontFamily: "th-sans-serif",
+              fontSize: "1.5rem",
+            }}
+          >
+            กะเพรา ? โหระพา ? สะระแหน่ ? ยี่หร่า ?
+          </p>
           <div
             style={{
-              height: "300px",
-              width: "300px",
-              margin: "auto",
+              position: "relative",
               marginBottom: "2rem",
-              border: "1px solid black",
             }}
-          ></div>
-        )}
-      </div>
-      <div>
-        <input
-          onChange={(e) => {
-            setPreview(URL.createObjectURL(e.target.files?.[0]));
-          }}
-          ref={ref as LegacyRef<HTMLInputElement>}
-          type="file"
-        ></input>
-        <div
-          style={{
-            marginTop: "2rem",
-          }}
-        >
-          <button onClick={onClick}>upload</button>
+          >
+            {preview ? (
+              <img
+                ref={img as LegacyRef<HTMLImageElement>}
+                style={{
+                  height: 400,
+                  width: 400,
+                  borderRadius: 8,
+                }}
+                src={URL.createObjectURL(preview)}
+              ></img>
+            ) : (
+              <>
+                <img src="placeholder.svg" className="placeholder-image"></img>
+              </>
+            )}
+            {preview ? (
+              result.length === 0 &&
+              !error && (
+                <img
+                  className="picture-manage-bar"
+                  src="add-bar-accepted.svg"
+                  onClick={() => {
+                    if (confirm("Delete image ?")) {
+                      setPreview(undefined);
+                    }
+                  }}
+                ></img>
+              )
+            ) : (
+              <>
+                <label
+                  style={{
+                    visibility: "hidden",
+                  }}
+                >
+                  <input
+                    ref={inputRef as LegacyRef<HTMLInputElement>}
+                    onChange={(e) => {
+                      setPreview(e.target.files?.[0]);
+                    }}
+                    type="file"
+                    className="picture-manage-bar"
+                  ></input>
+                </label>
+                <img
+                  onClick={() => {
+                    inputRef.current?.click();
+                  }}
+                  className="picture-manage-bar"
+                  src="add-bar.svg"
+                ></img>
+              </>
+            )}
+          </div>
+          {!preview && (
+            <p className="instructtion-text">
+              Click ‘ + ‘ to insert a picture or take a picture <br /> of a leaf
+              to check{" "}
+            </p>
+          )}
+          <div className="result">
+            {error && <p>Unpredictable</p>}
+            {processing
+              ? "processing"
+              : result.map((val) => {
+                  return (
+                    <p key={val.name}>
+                      {val.name} : {val.prop} %
+                    </p>
+                  );
+                })}
+          </div>
+          {preview && result.length === 0 && !error && (
+            <Button
+              color="clear sky"
+              style={{
+                marginTop: "2rem",
+                textAlign: "center",
+              }}
+              onClick={onClick}
+            >
+              Accept
+            </Button>
+          )}
+          {preview && (result.length > 0 || error) && (
+            <Button
+              color="peach"
+              style={{
+                marginTop: "2rem",
+                textAlign: "center",
+              }}
+              onClick={() => {
+                clear();
+                setPreview(undefined);
+              }}
+            >
+              Clear
+            </Button>
+          )}
+        </div>
+      ) : page === "about" ? (
+        <div className="main" style={{ textAlign: "center", position: "relative" }}>
+          <img className="about-img" src="about.svg"></img>
+          <i
+            style={{
+              position: "absolute",
+              fontSize: "2rem",
+              cursor: "pointer",
+              transform: "translateX(-3rem)",
+            }}
+            onClick={() => {
+              setPage("index");
+            }}
+            className="bi bi-x"
+          ></i>
+        </div>
+      ) : (
+        <></>
+      )}
+      <div className="information" style={{ display: "flex" }}>
+        <div style={{ marginLeft: "auto" }}>
+          <i
+            style={{
+              fontSize: "1.5rem",
+              cursor: "pointer",
+              padding: "5px 7px",
+              background: page === "info" ? "white" : "none",
+              borderRadius: 99,
+            }}
+            className="bi bi-journal-medical"
+            onClick={() => {
+              setPage("info");
+            }}
+          ></i>
+        </div>
+        <div >
+          <i
+            style={{
+              fontSize: "1.5rem",
+              cursor: "pointer",
+              padding: "5px 7px",
+              background: page === "about" ? "white" : "none",
+              borderRadius: 99,
+            }}
+            className="bi bi-people"
+            onClick={() => {
+              setPage("about");
+            }}
+          ></i>
         </div>
       </div>
-      {processing || localPorcessing
-        ? "processing"
-        : data.map((val) => {
-            return (
-              <p key={val.name}>
-                {val.name} : {val.prop} %
-              </p>
-            );
-          })}
-      {err && "unkown"}
-      <select ref={methodRef as LegacyRef<HTMLSelectElement>}>
-        <option value="local">local</option>
-        <option value="server">server</option>
-      </select>
     </div>
   );
 };
