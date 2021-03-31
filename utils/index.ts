@@ -5,7 +5,7 @@ export function mapToClass(index: number): string {
         case 1:
             return 'Holy Basil'
         case 2:
-            return 'Papermint'
+            return 'Peppermint'
         case 3:
             return 'Sweet Basil'
         default:
