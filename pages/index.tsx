@@ -66,7 +66,8 @@ const IndexPage = () => {
               <img
                 ref={img as LegacyRef<HTMLImageElement>}
                 style={{
-                  maxWidth: '100%',
+                  maxWidth: "100%",
+                  width: 400,
                   borderRadius: 8,
                 }}
                 src={URL.createObjectURL(preview)}
