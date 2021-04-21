@@ -182,7 +182,24 @@ const IndexPage = () => {
           ></i>
         </div>
       ) : (
-        <></>
+        <div
+          className="main"
+          style={{ textAlign: "center", position: "relative" }}
+        >
+          <img className="about-img" src="info.svg"></img>
+          <i
+            style={{
+              position: "absolute",
+              fontSize: "2rem",
+              cursor: "pointer",
+              transform: "translateX(-3rem)",
+            }}
+            onClick={() => {
+              setPage("index");
+            }}
+            className="bi bi-x"
+          ></i>
+        </div>
       )}
       <div className="information" style={{ display: "flex" }}>
         <div style={{ marginLeft: "auto" }}>
