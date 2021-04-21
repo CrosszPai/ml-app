@@ -29,7 +29,7 @@ const IndexPage = () => {
 
   return (
     <div className="app">
-      <div className="config" >
+      <div className="config">
         <Select
           onChange={(e) => {
             setMethod(e.target.value as any);
@@ -66,8 +66,7 @@ const IndexPage = () => {
               <img
                 ref={img as LegacyRef<HTMLImageElement>}
                 style={{
-                  height: 400,
-                  width: 400,
+                  maxWidth: '100%',
                   borderRadius: 8,
                 }}
                 src={URL.createObjectURL(preview)}
@@ -163,7 +162,10 @@ const IndexPage = () => {
           )}
         </div>
       ) : page === "about" ? (
-        <div className="main" style={{ textAlign: "center", position: "relative" }}>
+        <div
+          className="main"
+          style={{ textAlign: "center", position: "relative" }}
+        >
           <img className="about-img" src="about.svg"></img>
           <i
             style={{
@@ -197,7 +199,7 @@ const IndexPage = () => {
             }}
           ></i>
         </div>
-        <div >
+        <div>
           <i
             style={{
               fontSize: "1.5rem",

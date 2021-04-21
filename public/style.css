@@ -41,7 +41,7 @@ body {
 }
 
 .picture-manage-bar {
-  width: 408px;
+  max-width: 100%;
   margin: auto;
   position: absolute;
   bottom: 0;
