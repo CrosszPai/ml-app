@@ -2,8 +2,6 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import * as ts from '@tensorflow/tfjs'
 import { predictResponse, Result } from "../interfaces"
 import { isSafari, mapToClass } from "../utils"
-import { removeBackgroundFromImageUrl } from "remove.bg"
-import { env } from "../config/env"
 
 type predicFunction = (method: 'local' | 'server', img: File) => void
 
@@ -112,7 +110,7 @@ function arrayBufferToBase64(buffer: ArrayBuffer) {
 };
 
 function load(url: string): Promise<HTMLImageElement> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _) => {
         const im = new Image()
         im.crossOrigin = 'anonymous'
         im.src = url
