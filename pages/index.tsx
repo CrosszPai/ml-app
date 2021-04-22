@@ -23,7 +23,7 @@ const IndexPage = () => {
   const [{ processing, result, clear, error }, predict] = usePredict();
   const onClick = () => {
     if (preview && img.current) {
-      predict(method, method === "local" ? img.current : preview);
+      predict(method, preview);
     }
   };
 

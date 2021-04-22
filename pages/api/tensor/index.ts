@@ -5,12 +5,14 @@ import fs from 'fs'
 import path from 'path'
 import formidable from 'formidable'
 import { mapToClass } from '../../../utils';
-
+import { removeBackgroundFromImageFile } from 'remove.bg';
+import { env } from '../../../config/env';
+import { nanoid } from 'nanoid';
 
 let model: LayersModel;
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-    
+
     if (!model) {
         const dirRelativeToPublicFolder = 'model'
 
@@ -35,15 +37,22 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         });
     });
     const f = data.files.image as any
-
+    
     if (!f?.path) {
         res.send('no-op')
     } else {
         try {
-            const imageBuffer = fs.readFileSync(f.path);
-
-            const tfimage = tfnode.node
-                .decodePng(imageBuffer)
+            const result_path = `./storage/${nanoid()}.png`
+            await removeBackgroundFromImageFile({
+                path: f.path,
+                apiKey: env.bgkey as string,
+                bg_color: '#ffffff',
+                outputFile: result_path
+            })
+            const imageBuffer = fs.readFileSync(result_path);
+            const tfimage = (f.path.includes('.jpg') ?
+                tfnode.node.decodeJpeg(imageBuffer) :
+                tfnode.node.decodePng(imageBuffer))
                 .resizeNearestNeighbor([224, 224])
             const ww = (await tfimage.flatten().array()).map((val: number) => {
                 return -1 + ((1 - (-1)) / (255 - 0)) * (val - 0)

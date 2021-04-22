@@ -2,15 +2,17 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import * as ts from '@tensorflow/tfjs'
 import { predictResponse, Result } from "../interfaces"
 import { isSafari, mapToClass } from "../utils"
+import { removeBackgroundFromImageUrl } from "remove.bg"
+import { env } from "../config/env"
 
-type predicFunction = (method: 'local' | 'server', img: File | HTMLImageElement) => void
+type predicFunction = (method: 'local' | 'server', img: File) => void
 
 export function usePredict(): [{ result: Array<Result>, processing: boolean, clear: () => void, error: boolean }, predicFunction] {
     const model = useRef<ts.LayersModel>()
     const [result, setResult] = useState<Array<Result>>([])
     const [error, setError] = useState<boolean>(false)
     const [processing, setProcessing] = useState(false)
-    const predict = useCallback((method: 'local' | 'server', img: File | HTMLImageElement) => {
+    const predict = useCallback((method: 'local' | 'server', img: File) => {
         (async () => {
             if (!model.current) {
                 model.current = await ts.loadLayersModel('/model/model.json')
@@ -21,7 +23,7 @@ export function usePredict(): [{ result: Array<Result>, processing: boolean, cle
                 if (method === "server") {
                     if (img) {
                         const form = new FormData();
-                        form.append("image", img as File);
+                        form.append("image", img);
                         setProcessing(true);
                         setError(false);
                         fetch("/api/tensor", {
@@ -43,7 +45,16 @@ export function usePredict(): [{ result: Array<Result>, processing: boolean, cle
                 }
                 else {
                     setProcessing(true)
-                    const tfimage: ts.Tensor = ts.browser.fromPixels(img as HTMLImageElement).resizeNearestNeighbor([224, 224])
+                    const body = new FormData()
+                    body.append("image", img)
+                    const res = await fetch('/api/bg', {
+                        method: "POST",
+                        body
+                    })
+                    const buff = await res.arrayBuffer()
+                    const base64Flag = 'data:image/jpeg;base64,';
+                    const imageStr = arrayBufferToBase64(buff);
+                    const tfimage: ts.Tensor = ts.browser.fromPixels(await load(base64Flag + imageStr)).resizeNearestNeighbor([224, 224])
                     const ww = (await tfimage.flatten().array()).map((val: number) => {
                         return -1 + ((1 - (-1)) / (255 - 0)) * (val - 0)
                     })
@@ -90,4 +101,23 @@ export function usePredict(): [{ result: Array<Result>, processing: boolean, cle
         },
         predict
     ]
+}
+function arrayBufferToBase64(buffer: ArrayBuffer) {
+    var binary = '';
+    var bytes = [].slice.call(new Uint8Array(buffer));
+
+    bytes.forEach((b) => binary += String.fromCharCode(b));
+
+    return window.btoa(binary);
+};
+
+function load(url: string): Promise<HTMLImageElement> {
+    return new Promise((resolve, reject) => {
+        const im = new Image()
+        im.crossOrigin = 'anonymous'
+        im.src = url
+        im.onload = () => {
+            resolve(im)
+        }
+    })
 }
