@@ -19,6 +19,8 @@ export default function MyApp({ Component, pageProps }) {
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css"
         ></link>
+        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
       </Head>
       <Component {...pageProps} />
     </>
