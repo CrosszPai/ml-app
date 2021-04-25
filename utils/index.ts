@@ -1,15 +1,15 @@
 export function mapToClass(index: number): string {
     switch (index) {
         case 0:
-            return 'Caraway'
+            return 'ยี่หร่า'
         case 1:
-            return 'Holy Basil'
+            return 'กะเพรา'
         case 2:
-            return 'Peppermint'
+            return 'สะระแหน่'
         case 3:
-            return 'Sweet Basil'
+            return 'โหระพา'
         default:
-            return 'Unkown';
+            return 'ไม่อยู่ในกลุ่มไหนเลย';
     }
 }
 
