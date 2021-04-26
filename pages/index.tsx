@@ -127,8 +127,22 @@ const IndexPage = () => {
             {processing
               ? "processing"
               : result.map((val) => {
+                  const ismax =
+                    Math.max.apply(
+                      Math,
+                      result.map(function (o) {
+                        return parseInt(o.prop);
+                      })
+                    ) === parseInt(val.prop);
                   return (
-                    <p key={val.name}>
+                    <p
+                      style={{
+                        textDecoration: ismax ? "underline" : "none",
+                        fontWeight: ismax ? 600 : 400,
+                        fontSize: ismax ? "1.5rem" : "1.25rem",
+                      }}
+                      key={val.name}
+                    >
                       {val.name} : {val.prop} %
                     </p>
                   );
